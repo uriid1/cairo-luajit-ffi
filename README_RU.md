@@ -1,30 +1,30 @@
 ![Screenshot](https://github.com/uriid1/cairo-luajit-ffi/blob/main/screenshot.png)
-[Russian](README_RU.md) | English</br>
+Russian | [English](README.md)</br>
 
 ## Cairo LuaJit FFI
-FFI bindings for Cairo graphics 
+FFI Биндинги к cairo graphics 
 
-## Installation
-For Debian or Ubuntu
+## Установка
+Для Debian или Ubuntu
 ```bash
 sudo apt-get install libcairo2-dev
 ```
 
-For Fedora
+Для Fedora
 ```bash
 sudo yum install cairo-devel
 ```
 
-For openSUSE
+Для openSUSE
 ```bash
 zypper install cairo-devel
 ```
 
-# Documentation
+# Документация
 https://www.cairographics.org/manual/
-Methods have undergone minimal changes, but it's better to refer to cairo-ffi.lua, the examples, and test/all_test.lua.
+Методы практически не притерпели изменений, но лучше сверяться с `cairo-ffi.lua` и примерами и `test/all_test.lua`.
 
-# Minimal Example
+# Минимальный пример
 ```lua
 local cairo = require('cairo-ffi')
 
