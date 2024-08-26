@@ -4,9 +4,13 @@ local ffi = require('ffi')
 local libcairo = ffi.load('cairo')
 
 -- Read cairo.h
-local fd = io.open('cairo.h', 'r')
-local data = fd:read('*a')
-fd:close()
+local _sep = package.config:sub(1, 1)
+local function read_data(filepath)
+  local fd = io.open(filepath, 'r')
+  local data = fd:read('*a')
+  fd:close()
+  return data
+end
 
 -- Pre Define
 ffi.cdef[[
@@ -15,7 +19,9 @@ typedef void (*cairo_write_func_t)(void *closure, const unsigned char *data, uns
 ]]
 
 -- Define cairo.h
-ffi.cdef(data)
+ffi.cdef(read_data('src'.._sep..'cairo.h'))
+-- Define cairo-pdf
+ffi.cdef(read_data('src'.._sep..'cairo-pdf.h'))
 
 local cairo = {
   lib = libcairo
@@ -449,17 +455,17 @@ do -- Surfaces
   --
   -- PDF Surfaces
   --
-  -- cairo.pdf_surface_create = libcairo.cairo_pdf_surface_create
-  -- cairo.pdf_surface_create_for_stream = libcairo.cairo_pdf_surface_create_for_stream
-  -- cairo.pdf_surface_restrict_to_version = libcairo.cairo_pdf_surface_restrict_to_version
-  -- cairo.pdf_get_versions = libcairo.cairo_pdf_get_versions
-  -- cairo.pdf_version_to_string = libcairo.cairo_pdf_version_to_string
-  -- cairo.pdf_surface_set_size = libcairo.cairo_pdf_surface_set_size
-  -- cairo.pdf_surface_add_outline = libcairo.cairo_pdf_surface_add_outline
-  -- cairo.pdf_surface_set_metadata = libcairo.cairo_pdf_surface_set_metadata
-  -- cairo.pdf_surface_set_custom_metadata = libcairo.cairo_pdf_surface_set_custom_metadata
-  -- cairo.pdf_surface_set_page_label = libcairo.cairo_pdf_surface_set_page_label
-  -- cairo.pdf_surface_set_thumbnail_size = libcairo.cairo_pdf_surface_set_thumbnail_size
+  cairo.pdf_surface_create = libcairo.cairo_pdf_surface_create
+  cairo.pdf_surface_create_for_stream = libcairo.cairo_pdf_surface_create_for_stream
+  cairo.pdf_surface_restrict_to_version = libcairo.cairo_pdf_surface_restrict_to_version
+  cairo.pdf_get_versions = libcairo.cairo_pdf_get_versions
+  cairo.pdf_version_to_string = libcairo.cairo_pdf_version_to_string
+  cairo.pdf_surface_set_size = libcairo.cairo_pdf_surface_set_size
+  cairo.pdf_surface_add_outline = libcairo.cairo_pdf_surface_add_outline
+  cairo.pdf_surface_set_metadata = libcairo.cairo_pdf_surface_set_metadata
+  cairo.pdf_surface_set_custom_metadata = libcairo.cairo_pdf_surface_set_custom_metadata
+  cairo.pdf_surface_set_page_label = libcairo.cairo_pdf_surface_set_page_label
+  cairo.pdf_surface_set_thumbnail_size = libcairo.cairo_pdf_surface_set_thumbnail_size
 
   --
   -- PNG Support
