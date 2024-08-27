@@ -112,8 +112,11 @@ do -- Drawing
   cairo.get_reference_count = libcairo.cairo_get_reference_count
   cairo.set_user_data = libcairo.cairo_set_user_data
   cairo.get_user_data = libcairo.cairo_get_user_data
-  cairo.set_hairline = libcairo.cairo_set_hairline
-  cairo.get_hairline = libcairo.cairo_get_hairline
+
+  if libcairo.cairo_version() >= 11800 then
+    cairo.set_hairline = libcairo.cairo_set_hairline
+    cairo.get_hairline = libcairo.cairo_get_hairline
+  end
 
   --
   -- Paths
@@ -182,8 +185,11 @@ do -- Drawing
   cairo.pattern_get_reference_count = libcairo.cairo_pattern_get_reference_count
   cairo.pattern_set_user_data = libcairo.cairo_pattern_set_user_data
   cairo.pattern_get_user_data = libcairo.cairo_pattern_get_user_data
-  cairo.pattern_set_dither = libcairo.cairo_pattern_set_dither
-  cairo.pattern_get_dither = libcairo.cairo_pattern_get_dither
+
+  if libcairo.cairo_version() >= 11800 then
+    cairo.pattern_set_dither = libcairo.cairo_pattern_set_dither
+    cairo.pattern_get_dither = libcairo.cairo_pattern_get_dither
+  end
 
   --
   -- Regions
@@ -335,12 +341,15 @@ do -- Fonts
   cairo.font_options_get_hint_metrics = libcairo.cairo_font_options_get_hint_metrics
   cairo.font_options_get_variations = libcairo.cairo_font_options_get_variations
   cairo.font_options_set_variations = libcairo.cairo_font_options_set_variations
-  cairo.font_options_set_color_mode = libcairo.cairo_font_options_set_color_mode
-  cairo.font_options_get_color_mode = libcairo.cairo_font_options_get_color_mode
-  cairo.font_options_set_color_palette = libcairo.cairo_font_options_set_color_palette
-  cairo.font_options_get_color_palette = libcairo.cairo_font_options_get_color_palette
-  cairo.font_options_set_custom_palette_color = libcairo.cairo_font_options_set_custom_palette_color
-  cairo.font_options_get_custom_palette_color = libcairo.cairo_font_options_get_custom_palette_color
+
+  if libcairo.cairo_version() >= 11800 then
+    cairo.font_options_set_color_mode = libcairo.cairo_font_options_set_color_mode
+    cairo.font_options_get_color_mode = libcairo.cairo_font_options_get_color_mode
+    cairo.font_options_set_color_palette = libcairo.cairo_font_options_set_color_palette
+    cairo.font_options_get_color_palette = libcairo.cairo_font_options_get_color_palette
+    cairo.font_options_set_custom_palette_color = libcairo.cairo_font_options_set_custom_palette_color
+    cairo.font_options_get_custom_palette_color = libcairo.cairo_font_options_get_custom_palette_color
+  end
 
   --
   -- FreeType Fonts
@@ -389,14 +398,17 @@ do -- Fonts
   cairo.user_font_face_get_init_func = libcairo.cairo_user_font_face_get_init_func
   cairo.user_font_face_set_render_glyph_func = libcairo.cairo_user_font_face_set_render_glyph_func
   cairo.user_font_face_get_render_glyph_func = libcairo.cairo_user_font_face_get_render_glyph_func
-  cairo.user_font_face_set_render_color_glyph_func = libcairo.cairo_user_font_face_set_render_color_glyph_func
-  cairo.user_font_face_get_render_color_glyph_func = libcairo.cairo_user_font_face_get_render_color_glyph_func
-  cairo.user_font_face_set_unicode_to_glyph_func = libcairo.cairo_user_font_face_set_unicode_to_glyph_func
-  cairo.user_font_face_get_unicode_to_glyph_func = libcairo.cairo_user_font_face_get_unicode_to_glyph_func
-  cairo.user_font_face_set_text_to_glyphs_func = libcairo.cairo_user_font_face_set_text_to_glyphs_func
-  cairo.user_font_face_get_text_to_glyphs_func = libcairo.cairo_user_font_face_get_text_to_glyphs_func
-  cairo.user_scaled_font_get_foreground_marker = libcairo.cairo_user_scaled_font_get_foreground_marker
-  cairo.user_scaled_font_get_foreground_source = libcairo.cairo_user_scaled_font_get_foreground_source
+
+  if libcairo.cairo_version() >= 11800 then
+    cairo.user_font_face_set_render_color_glyph_func = libcairo.cairo_user_font_face_set_render_color_glyph_func
+    cairo.user_font_face_get_render_color_glyph_func = libcairo.cairo_user_font_face_get_render_color_glyph_func
+    cairo.user_font_face_set_unicode_to_glyph_func = libcairo.cairo_user_font_face_set_unicode_to_glyph_func
+    cairo.user_font_face_get_unicode_to_glyph_func = libcairo.cairo_user_font_face_get_unicode_to_glyph_func
+    cairo.user_font_face_set_text_to_glyphs_func = libcairo.cairo_user_font_face_set_text_to_glyphs_func
+    cairo.user_font_face_get_text_to_glyphs_func = libcairo.cairo_user_font_face_get_text_to_glyphs_func
+    cairo.user_scaled_font_get_foreground_marker = libcairo.cairo_user_scaled_font_get_foreground_marker
+    cairo.user_scaled_font_get_foreground_source = libcairo.cairo_user_scaled_font_get_foreground_source
+  end
 end
 
 do -- Surfaces
@@ -480,9 +492,12 @@ do -- Surfaces
   cairo.pdf_surface_set_size = libcairo.cairo_pdf_surface_set_size
   cairo.pdf_surface_add_outline = libcairo.cairo_pdf_surface_add_outline
   cairo.pdf_surface_set_metadata = libcairo.cairo_pdf_surface_set_metadata
-  cairo.pdf_surface_set_custom_metadata = libcairo.cairo_pdf_surface_set_custom_metadata
-  cairo.pdf_surface_set_page_label = libcairo.cairo_pdf_surface_set_page_label
-  cairo.pdf_surface_set_thumbnail_size = libcairo.cairo_pdf_surface_set_thumbnail_size
+
+  if libcairo.cairo_version() >= 11800 then
+    cairo.pdf_surface_set_custom_metadata = libcairo.cairo_pdf_surface_set_custom_metadata
+    cairo.pdf_surface_set_page_label = libcairo.cairo_pdf_surface_set_page_label
+    cairo.pdf_surface_set_thumbnail_size = libcairo.cairo_pdf_surface_set_thumbnail_size
+  end
 
   --
   -- PNG Support

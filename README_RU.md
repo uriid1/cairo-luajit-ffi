@@ -2,12 +2,18 @@
 Russian | [English](README.md)</br>
 
 ## Cairo LuaJit FFI
-FFI Биндинги к cairo graphics 
+FFI Биндинги к cairo graphics.</br>
+Тестировалось на версии cairo 1.18.0
 
 ## Установка
 Для Debian или Ubuntu
 ```bash
 sudo apt-get install libcairo2-dev
+```
+
+Для Arch или Manjaro
+```bash
+sudo pacman -S cairo
 ```
 
 Для Fedora
