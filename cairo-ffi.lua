@@ -16,16 +16,33 @@ end
 ffi.cdef[[
 // Fix for cairo_surface_write_to_png_stream
 typedef void (*cairo_write_func_t)(void *closure, const unsigned char *data, unsigned int length);
+
+// Define version information
+int cairo_version(void);
+const char * cairo_version_string(void);
 ]]
 
 -- Define cairo.h
 ffi.cdef(read_data('src'.._sep..'cairo.h'))
--- Define cairo-pdf
+-- Define cairo-pdf.h
 ffi.cdef(read_data('src'.._sep..'cairo-pdf.h'))
+-- Define cairo-svg.h
+ffi.cdef(read_data('src'.._sep..'cairo-svg.h'))
+-- Define cairo-ps.h
+ffi.cdef(read_data('src'.._sep..'cairo-ps.h'))
+-- Define cairo-tee.h
+ffi.cdef(read_data('src'.._sep..'cairo-tee.h'))
 
 local cairo = {
   lib = libcairo
 }
+
+do -- Version
+  cairo.version = libcairo.cairo_version
+  cairo.version_string = function ()
+    return ffi.string(libcairo.cairo_version_string())
+  end
+end
 
 do -- Drawing
   --
@@ -484,17 +501,17 @@ do -- Surfaces
   --
   -- PostScript Surfaces
   --
-  -- cairo.ps_surface_create = libcairo.cairo_ps_surface_create
-  -- cairo.ps_surface_create_for_stream = libcairo.cairo_ps_surface_create_for_stream
-  -- cairo.ps_surface_restrict_to_level = libcairo.cairo_ps_surface_restrict_to_level
-  -- cairo.ps_get_levels = libcairo.cairo_ps_get_levels
-  -- cairo.ps_level_to_string = libcairo.cairo_ps_level_to_string
-  -- cairo.ps_surface_set_eps = libcairo.cairo_ps_surface_set_eps
-  -- cairo.ps_surface_get_eps = libcairo.cairo_ps_surface_get_eps
-  -- cairo.ps_surface_set_size = libcairo.cairo_ps_surface_set_size
-  -- cairo.ps_surface_dsc_begin_setup = libcairo.cairo_ps_surface_dsc_begin_setup
-  -- cairo.ps_surface_dsc_begin_page_setup = libcairo.cairo_ps_surface_dsc_begin_page_setup
-  -- cairo.ps_surface_dsc_comment = libcairo.cairo_ps_surface_dsc_comment
+  cairo.ps_surface_create = libcairo.cairo_ps_surface_create
+  cairo.ps_surface_create_for_stream = libcairo.cairo_ps_surface_create_for_stream
+  cairo.ps_surface_restrict_to_level = libcairo.cairo_ps_surface_restrict_to_level
+  cairo.ps_get_levels = libcairo.cairo_ps_get_levels
+  cairo.ps_level_to_string = libcairo.cairo_ps_level_to_string
+  cairo.ps_surface_set_eps = libcairo.cairo_ps_surface_set_eps
+  cairo.ps_surface_get_eps = libcairo.cairo_ps_surface_get_eps
+  cairo.ps_surface_set_size = libcairo.cairo_ps_surface_set_size
+  cairo.ps_surface_dsc_begin_setup = libcairo.cairo_ps_surface_dsc_begin_setup
+  cairo.ps_surface_dsc_begin_page_setup = libcairo.cairo_ps_surface_dsc_begin_page_setup
+  cairo.ps_surface_dsc_comment = libcairo.cairo_ps_surface_dsc_comment
 
   --
   -- Recording Surfaces
@@ -517,13 +534,13 @@ do -- Surfaces
   --
   -- SVG Surfaces
   --
-  -- cairo.svg_surface_create = libcairo.cairo_svg_surface_create
-  -- cairo.svg_surface_create_for_stream = libcairo.cairo_svg_surface_create_for_stream
-  -- cairo.svg_surface_get_document_unit = libcairo.cairo_svg_surface_get_document_unit
-  -- cairo.svg_surface_set_document_unit = libcairo.cairo_svg_surface_set_document_unit
-  -- cairo.svg_surface_restrict_to_version = libcairo.cairo_svg_surface_restrict_to_version
-  -- cairo.svg_get_versions = libcairo.cairo_svg_get_versions
-  -- cairo.svg_version_to_string = libcairo.cairo_svg_version_to_string
+  cairo.svg_surface_create = libcairo.cairo_svg_surface_create
+  cairo.svg_surface_create_for_stream = libcairo.cairo_svg_surface_create_for_stream
+  cairo.svg_surface_get_document_unit = libcairo.cairo_svg_surface_get_document_unit
+  cairo.svg_surface_set_document_unit = libcairo.cairo_svg_surface_set_document_unit
+  cairo.svg_surface_restrict_to_version = libcairo.cairo_svg_surface_restrict_to_version
+  cairo.svg_get_versions = libcairo.cairo_svg_get_versions
+  cairo.svg_version_to_string = libcairo.cairo_svg_version_to_string
 
   --
   -- Quartz Surfaces
@@ -601,10 +618,10 @@ do -- Surfaces
   --
   -- Tee surface
   --
-  -- cairo.tee_surface_create = libcairo.cairo_tee_surface_create
-  -- cairo.tee_surface_add = libcairo.cairo_tee_surface_add
-  -- cairo.tee_surface_index = libcairo.cairo_tee_surface_index
-  -- cairo.tee_surface_remove = libcairo.cairo_tee_surface_remove
+  cairo.tee_surface_create = libcairo.cairo_tee_surface_create
+  cairo.tee_surface_add = libcairo.cairo_tee_surface_add
+  cairo.tee_surface_index = libcairo.cairo_tee_surface_index
+  cairo.tee_surface_remove = libcairo.cairo_tee_surface_remove
 end
 
 do -- Utilities
@@ -631,12 +648,6 @@ do -- Utilities
   --
   cairo.status_to_string = libcairo.cairo_status_to_string
   cairo.debug_reset_static_data = libcairo.cairo_debug_reset_static_data
-
-  --
-  -- Version Information
-  --
-  -- cairo.version = libcairo.cairo_version
-  -- cairo.version_string = libcairo.cairo_version_string
 end
 
 return cairo
