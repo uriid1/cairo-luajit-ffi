@@ -3,15 +3,6 @@
 local ffi = require('ffi')
 local libcairo = ffi.load('cairo')
 
--- Read cairo.h
-local _sep = package.config:sub(1, 1)
-local function read_data(filepath)
-  local fd = io.open(filepath, 'r')
-  local data = fd:read('*a')
-  fd:close()
-  return data
-end
-
 -- Pre Define
 ffi.cdef[[
 // Fix for cairo_surface_write_to_png_stream
@@ -23,15 +14,15 @@ const char * cairo_version_string(void);
 ]]
 
 -- Define cairo.h
-ffi.cdef(read_data('src'.._sep..'cairo.h'))
+require('cairo-luajit-ffi.src.cairo_h')
 -- Define cairo-pdf.h
-ffi.cdef(read_data('src'.._sep..'cairo-pdf.h'))
+require('cairo-luajit-ffi.src.cairo-pdf_h')
 -- Define cairo-svg.h
-ffi.cdef(read_data('src'.._sep..'cairo-svg.h'))
+require('cairo-luajit-ffi.src.cairo-svg_h')
 -- Define cairo-ps.h
-ffi.cdef(read_data('src'.._sep..'cairo-ps.h'))
+require('cairo-luajit-ffi.src.cairo-ps_h')
 -- Define cairo-tee.h
-ffi.cdef(read_data('src'.._sep..'cairo-tee.h'))
+require('cairo-luajit-ffi.src.cairo-tee_h')
 
 local cairo = {
   lib = libcairo

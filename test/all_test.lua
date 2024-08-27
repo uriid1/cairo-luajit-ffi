@@ -1,5 +1,5 @@
 -- Rewrite https://github.com/lgi-devs/lgi/blob/master/samples/cairo.lua
-local cairo = require('cairo-ffi')
+local cairo = require('cairo-luajit-ffi')
 
 --
 -- Sample cairo application, based on http://cairographics.org/samples/

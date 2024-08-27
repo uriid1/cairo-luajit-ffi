@@ -1,4 +1,4 @@
-local hist = require('cairo-ffi.ext.histogram')
+local hist = require('cairo-luajit-ffi.ext.histogram')
 local descriptions = {}
 local values  = {}
 

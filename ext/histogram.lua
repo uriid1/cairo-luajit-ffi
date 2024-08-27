@@ -1,6 +1,6 @@
 -- Adaptive histogram
 --
-local cairo = require('cairo-ffi')
+local cairo = require('cairo-luajit-ffi')
 
 local unpack = unpack or table.unpack
 local MIN_WIDTH = 400

@@ -6,6 +6,11 @@ FFI Биндинги к cairo graphics.</br>
 Тестировалось на версии cairo 1.18.0
 
 ## Установка
+# LuaRocks
+```
+sudo luarocks --lua-version 5.1 install cairo-luajit-ffi-0.0-1.rockspec
+```
+
 Для Debian или Ubuntu
 ```bash
 sudo apt-get install libcairo2-dev

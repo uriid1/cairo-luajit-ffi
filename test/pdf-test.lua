@@ -1,4 +1,4 @@
-local cairo = require('cairo-ffi')
+local cairo = require('cairo-luajit-ffi')
 
 local width = 612
 local height = 792

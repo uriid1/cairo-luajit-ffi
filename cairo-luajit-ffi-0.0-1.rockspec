@@ -21,14 +21,12 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    [package] = "cairo-luajit-ffi.lua",
-    --
-    [package..".src"] = "cairo.h",
-    [package..".src"] = "cairo-tee.h",
-    [package..".src"] = "cairo-svg.h",
-    [package..".src"] = "cairo-ps.h",
-    [package..".src"] = "cairo-pdf.h",
-    --
-    [package..".ext"] = "histogram.lua",
+    [package] = "init.lua",
+    [package..".ext.histogram"] = "ext/histogram.lua",
+    [package..".src.cairo-tee_h"] = "src/cairo-tee_h.lua",
+    [package..".src.cairo-svg_h"] = "src/cairo-svg_h.lua",
+    [package..".src.cairo-ps_h"] = "src/cairo-ps_h.lua",
+    [package..".src.cairo-pdf_h"] = "src/cairo-pdf_h.lua",
+    [package..".src.cairo_h"] = "src/cairo_h.lua",
   }
 }
