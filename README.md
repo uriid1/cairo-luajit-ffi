@@ -32,7 +32,7 @@ Methods have undergone minimal changes, but it's better to refer to cairo-ffi.lu
 
 # Minimal Example
 ```lua
-local cairo = require('cairo-ffi')
+local cairo = require('cairo-luajit-ffi')
 
 local WIDTH = 512
 local HEIGHT = 512
@@ -45,11 +45,7 @@ cairo.paint(cr)
 
 -- Fill circle
 cairo.set_source_rgb(cr, 0, 0.7, 0.7)
-cairo.save(cr)
-cairo.translate(cr, WIDTH/2, HEIGHT/2)
-cairo.scale(cr, WIDTH/4, HEIGHT/4)
-cairo.arc(cr, 0, 0, 1, 0, 2 * math.pi)
-cairo.restore(cr)
+cairo.arc(cr, WIDTH/2, HEIGHT/2, 128, 0, 2 * math.pi)
 cairo.fill(cr)
 
 cairo.surface_write_to_png(surface, 'circle-test.png')
