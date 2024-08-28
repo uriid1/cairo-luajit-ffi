@@ -6,7 +6,7 @@ source = {
 }
 
 description = {
-  summary = "FFI bindings for Cairo graphics",
+  summary = "FFI bindings to Cairo graphics",
   detailed = [[
     https://www.cairographics.org/manual/ Methods have undergone minimal changes, but it's better to refer to cairo-ffi.lua, the examples, and test/all_test.lua.
   ]],

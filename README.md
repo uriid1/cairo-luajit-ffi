@@ -2,14 +2,15 @@
 [Russian](README_RU.md) | English</br>
 
 ## Cairo LuaJit FFI
-FFI bindings for Cairo graphics 
+FFI bindings to Cairo graphics
 
 ## Installation
-# LuaRocks
-```
+## LuaRocks
+```bash
 sudo luarocks --lua-version 5.1 install cairo-luajit-ffi-0.0-1.rockspec
 ```
 
+## Dependencies
 For Debian or Ubuntu
 ```bash
 sudo apt-get install libcairo2-dev
