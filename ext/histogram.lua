@@ -21,6 +21,7 @@ local function mk_histogram(opts)
     height = MIN_HEIGHT
   end
 
+  local right_line_space = 15
   local left_right_space = opts.space and opts.space.left_right or 50
   local top_space        = opts.space and opts.space.top        or 50
   local bottom_space     = opts.space and opts.space.bottom     or 50
@@ -64,7 +65,7 @@ local function mk_histogram(opts)
     -- Line
     cairo.set_source_rgb(cr, 0.8, 0.8, 0.8)
     cairo.move_to(cr, left_right_space - grid_left_right_space, y)
-    cairo.line_to(cr, width - left_right_space + grid_left_right_space, y)
+    cairo.line_to(cr, width - right_line_space + grid_left_right_space, y)
     cairo.stroke(cr)
 
     -- Text
@@ -80,10 +81,10 @@ local function mk_histogram(opts)
     -- Text params
     local extents = cairo.text_extents(cr, tostring(math.ceil(max_values)))
 
-    cairo.set_source_rgb(cr, 0.3, 0.3, 0.3)
+    cairo.set_source_rgb(cr, 0.5, 0.5, 0.5)
     cairo.save(cr)
     cairo.translate(cr,
-      left_right_space - grid_left_right_space - extents.width-5,
+      left_right_space - grid_left_right_space - extents.width - 5,
       y + extents.height/2
     )
     cairo.rotate(cr, math.rad(rotate_value_text))
@@ -101,7 +102,7 @@ local function mk_histogram(opts)
     local bar_x = left_right_space + ((i-1)*bar_width) + (i-1)*2
     local bar_y = height - bar_height - bottom_space
 
-    cairo.set_source_rgb(cr, 100/bar_height + 0.3, 0.5, 1 - 100/bar_height + 0.3)
+    cairo.set_source_rgb(cr, 100/bar_height + 0.3, 0.7, 1 - 100/bar_height + 0.3)
     cairo.rectangle(cr,
       -- x
       bar_x,
@@ -118,12 +119,21 @@ local function mk_histogram(opts)
     --
     -- Text params
     local extents = cairo.text_extents(cr, tostring(opts.descriptions[i]))
+    local text_y = (extents.height + extents.y_bearing)
 
     cairo.save(cr)
-    cairo.translate(cr,
-      bar_x + bar_width/2 - extents.width/2,
-      (height - bottom_space) + 14 + extents.height/2
-    )
+    if opts  and opts.text and opts.text.description_alignment_center then
+      local text_ox = (extents.width/2 + extents.x_bearing)
+      cairo.translate(cr,
+        bar_x + bar_width/2 - text_ox,
+        (height - bottom_space) + 20 + text_y
+      )
+    else
+      cairo.translate(cr,
+        bar_x + bar_width/2 - extents.height/2,
+        (height - bottom_space) + 20 + text_y
+      )
+    end
     cairo.rotate(cr, math.rad(rotate_description_text))
     cairo.move_to(cr, 0, 0)
     cairo.show_text(cr, opts.descriptions[i])

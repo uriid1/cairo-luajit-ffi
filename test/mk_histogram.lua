@@ -29,6 +29,7 @@ local surface = hist.mk_histogram({
     font_size = 16,
     rotate_value_text = -30,
     rotate_description_text = 0,
+    description_alignment_center = false,
   },
   --
   bar = {
