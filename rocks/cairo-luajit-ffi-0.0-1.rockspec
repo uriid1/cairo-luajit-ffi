@@ -3,6 +3,7 @@ version = "0.0-1"
 
 source = {
   url = "git+https://github.com/uriid1/cairo-luajit-ffi.git",
+  tag = "v0.0.1",
 }
 
 description = {

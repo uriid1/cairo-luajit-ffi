@@ -2,20 +2,12 @@
 local root = arg[0]:match('(.*/)') or './'
 package.path = root..'../../?/init.lua;'..root..'../../?.lua;'..package.path
 
-local captcha = require('cairo-luajit-ffi.ext.captcha')
+local placeholder = require('cairo-luajit-ffi.ext.placeholder')
 
-math.randomseed(os.time() + os.clock())
-
-local c = captcha.new({
-  length = 5,
+local p = placeholder.new({
   width = 300,
-  height = 120,
+  height = 150,
 })
 
-print('Challenge: '..c.text)
-
--- PNG строкой
--- local data = c:pngString()
-
-c:writePng(c.text..'.png')
-c:destroy()
+p:writePng('placeholder.png')
+p:destroy()

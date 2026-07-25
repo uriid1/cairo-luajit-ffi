@@ -1,24 +1,29 @@
-local hist = require('cairo-luajit-ffi.ext.histogram')
-local descriptions = {}
-local values  = {}
+-- Подключение библиотеки из репозитория при запуске из любого каталога
+local root = arg[0]:match('(.*/)') or './'
+package.path = root..'../../?/init.lua;'..root..'../../?.lua;'..package.path
 
-local sin_step = 0
+local histogram = require('cairo-luajit-ffi.ext.histogram')
+
+local descriptions = {}
+local values = {}
+
+local sinStep = 0
 for i = 1, 35 do
-  sin_step = sin_step + math.pi/8
-  table.insert(values, i + math.sin(sin_step)*5)
+  sinStep = sinStep + math.pi / 8
+  table.insert(values, i + math.sin(sinStep) * 5)
   table.insert(descriptions, tostring(i))
 end
 
-local surface = hist.mk_histogram({
+local h = histogram.new({
   values = values,
   descriptions = descriptions,
   --
   height = 500,
   --
   space = {
-    left_right = 65,
+    leftRight = 65,
     bottom = 35,
-    top = 35
+    top = 35,
   },
   --
   grid = {
@@ -26,23 +31,20 @@ local surface = hist.mk_histogram({
   },
   --
   text = {
-    font_size = 16,
-    rotate_value_text = -30,
-    rotate_description_text = 0,
-    description_alignment_center = false,
+    fontSize = 16,
+    rotateValueText = -30,
+    rotateDescriptionText = 0,
+    descriptionAlignmentCenter = false,
   },
   --
   bar = {
     width = 25,
-    space = 2
-  }
+    space = 2,
+  },
 })
 
--- local buff = {}
--- hist.write_to_png_stream(surface, function (data)
---   table.insert(buff, data)
--- end)
--- print(table.concat(buff))
+-- PNG строкой
+-- local data = h:pngString()
 
-hist.write_to_png(surface, 'histogram.png')
-hist.surface_destroy(surface)
+h:writePng('histogram.png')
+h:destroy()

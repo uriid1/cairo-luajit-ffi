@@ -1,3 +1,7 @@
+-- Подключение библиотеки из репозитория при запуске из любого каталога
+local root = arg[0]:match('(.*/)') or './'
+package.path = root..'../../?/init.lua;'..root..'../../?.lua;'..package.path
+
 -- Rewrite https://github.com/lgi-devs/lgi/blob/master/samples/cairo.lua
 local cairo = require('cairo-luajit-ffi')
 
@@ -6,7 +10,17 @@ local cairo = require('cairo-luajit-ffi')
 --
 -- Renders all samples into separate PNG images
 --
-local imagename = 'apple-red.png'
+-- Путь относительно скрипта - иначе при запуске из другого каталога
+-- cairo молча вернёт error-surface и сэмплы с картинкой выйдут пустыми
+local imagename = root..'apple-red.png'
+
+-- Загрузка PNG с проверкой статуса поверхности
+local function loadPng(filename)
+   local image = cairo.image_surface_create_from_png(filename)
+   local status = tonumber(cairo.surface_status(image))
+   assert(status == 0, filename..': '..cairo.status_to_string(status))
+   return image
+end
 
 local samples = {}
 
@@ -79,7 +93,7 @@ function samples.clip_image(cr)
    cairo.clip(cr)
    cairo.new_path(cr)
 
-   local image = cairo.image_surface_create_from_png(imagename)
+   local image = loadPng(imagename)
    local width = cairo.image_surface_get_width(image)
    local height = cairo.image_surface_get_height(image)
    cairo.scale(cr, 256 / width, 256 / height)
@@ -88,7 +102,7 @@ function samples.clip_image(cr)
 end
 
 function samples.dash(cr)
-   cairo.set_dash(cr, { 50, 10, 10, 10 }, -50, 0)
+   cairo.set_dash(cr, { 50, 10, 10, 10 }, -50)
 
    cairo.set_line_width(cr, 10)
    cairo.move_to(cr, 128, 25.6)
@@ -141,7 +155,7 @@ function samples.fill_and_stroke(cr)
 end
 
 function samples.imagepattern(cr)
-   local image = cairo.image_surface_create_from_png(imagename)
+   local image = loadPng(imagename)
 
    local pattern = cairo.pattern_create_for_surface(image)
    cairo.pattern_set_extend(pattern, cairo.lib.CAIRO_EXTEND_REPEAT)
@@ -153,7 +167,8 @@ function samples.imagepattern(cr)
 
    local width = cairo.image_surface_get_width(image)
    local height = cairo.image_surface_get_height(image)
-   cairo.matrix_init_scale(width / 256 * 5, height / 256 * 5)
+   local matrix = cairo.matrix_init_scale(width / 256 * 5, height / 256 * 5)
+   cairo.pattern_set_matrix(pattern, matrix)
 
    cairo.set_source(cr, pattern)
    cairo.rectangle(cr, 0, 0, 256, 256)

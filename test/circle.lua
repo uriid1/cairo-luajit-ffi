@@ -1,3 +1,7 @@
+-- Подключение библиотеки из репозитория при запуске из любого каталога
+local root = arg[0]:match('(.*/)') or './'
+package.path = root..'../../?/init.lua;'..root..'../../?.lua;'..package.path
+
 local cairo = require('cairo-luajit-ffi')
 
 local WIDTH = 512

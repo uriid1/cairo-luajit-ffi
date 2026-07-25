@@ -1,41 +1,54 @@
--- Lib cairo bind
---
+--- FFI-биндинги к библиотеке cairo.
+-- Имена функций повторяют C API без префикса cairo_.
+-- See: https://www.cairographics.org/manual/
 local ffi = require('ffi')
 local libcairo = ffi.load('cairo')
 
--- Pre Define
+-- Информация о версии - нужна для условных определений ниже
 ffi.cdef[[
-// Fix for cairo_surface_write_to_png_stream
-typedef void (*cairo_write_func_t)(void *closure, const unsigned char *data, unsigned int length);
-
-// Define version information
 int cairo_version(void);
 const char * cairo_version_string(void);
 ]]
 
--- Define cairo.h
+-- Объявления cairo.h
 require('cairo-luajit-ffi.src.cairo_h')
--- Define cairo-pdf.h
+-- Объявления cairo-pdf.h
 require('cairo-luajit-ffi.src.cairo-pdf_h')
--- Define cairo-svg.h
+-- Объявления cairo-svg.h
 require('cairo-luajit-ffi.src.cairo-svg_h')
--- Define cairo-ps.h
+-- Объявления cairo-ps.h
 require('cairo-luajit-ffi.src.cairo-ps_h')
--- Define cairo-tee.h
+-- Объявления cairo-tee.h
 require('cairo-luajit-ffi.src.cairo-tee_h')
 
 local cairo = {
-  lib = libcairo
+  lib = libcairo,
 }
 
-do -- Version
+--- Enum-константы cairo.
+-- Значение резолвится через FFI при первом обращении и кешируется в таблице.
+-- @usage
+-- local consts = cairo.consts
+-- local format = consts.CAIRO_FORMAT_ARGB32
+cairo.consts = setmetatable({}, {
+  __index = function(self, name)
+    local value = libcairo[name]
+    rawset(self, name, value)
+    return value
+  end,
+})
+
+do -- Версия
   cairo.version = libcairo.cairo_version
-  cairo.version_string = function ()
+
+  --- Получить строку версии cairo.
+  -- @treturn string версия, например '1.18.4'
+  function cairo.version_string()
     return ffi.string(libcairo.cairo_version_string())
   end
 end
 
-do -- Drawing
+do -- Рисование
   --
   -- cairo_t
   --
@@ -59,8 +72,12 @@ do -- Drawing
   cairo.set_antialias = libcairo.cairo_set_antialias
   cairo.get_antialias = libcairo.cairo_get_antialias
 
-  cairo.set_dash = function(cr, dashes, offset)
-    return libcairo.cairo_set_dash(cr, ffi.new("double[?]", #dashes, dashes), #dashes, offset)
+  --- Задать шаблон штриховки линии.
+  -- @tparam cdata cr контекст cairo
+  -- @tparam table dashes массив длин штрихов и промежутков
+  -- @tparam number offset смещение начала шаблона
+  function cairo.set_dash(cr, dashes, offset)
+    return libcairo.cairo_set_dash(cr, ffi.new('double[?]', #dashes, dashes), #dashes, offset)
   end
 
   cairo.get_dash_count = libcairo.cairo_get_dash_count
@@ -110,7 +127,7 @@ do -- Drawing
   end
 
   --
-  -- Paths
+  -- Пути
   --
   cairo.copy_path = libcairo.cairo_copy_path
   cairo.copy_path_flat = libcairo.cairo_copy_path_flat
@@ -137,7 +154,7 @@ do -- Drawing
   --
   -- cairo_pattern_t
   --
-  cairo.pattern_add_color_stop_rgb = libcairo. cairo_pattern_add_color_stop_rgb
+  cairo.pattern_add_color_stop_rgb = libcairo.cairo_pattern_add_color_stop_rgb
   cairo.pattern_add_color_stop_rgba = libcairo.cairo_pattern_add_color_stop_rgba
   cairo.pattern_get_color_stop_count = libcairo.cairo_pattern_get_color_stop_count
   cairo.pattern_get_color_stop_rgba = libcairo.cairo_pattern_get_color_stop_rgba
@@ -183,7 +200,7 @@ do -- Drawing
   end
 
   --
-  -- Regions
+  -- Регионы
   --
   cairo.region_create = libcairo.cairo_region_create
   cairo.region_create_rectangle = libcairo.cairo_region_create_rectangle
@@ -210,7 +227,7 @@ do -- Drawing
   cairo.region_xor_rectangle = libcairo.cairo_region_xor_rectangle
 
   --
-  -- Transformations
+  -- Трансформации
   --
   cairo.translate = libcairo.cairo_translate
   cairo.scale = libcairo.cairo_scale
@@ -225,7 +242,7 @@ do -- Drawing
   cairo.device_to_user_distance = libcairo.cairo_device_to_user_distance
 
   --
-  -- text
+  -- Текст
   --
   cairo.select_font_face = libcairo.cairo_select_font_face
   cairo.set_font_size = libcairo.cairo_set_font_size
@@ -241,8 +258,12 @@ do -- Drawing
   cairo.show_glyphs = libcairo.cairo_show_glyphs
   cairo.show_text_glyphs = libcairo.cairo_show_text_glyphs
   cairo.font_extents = libcairo.cairo_font_extents
-  cairo.text_extents = function(cr, text)
-    local extents = ffi.new("cairo_text_extents_t")
+  --- Получить метрики текста.
+  -- @tparam cdata cr контекст cairo
+  -- @tparam string text текст
+  -- @treturn cdata метрики cairo_text_extents_t
+  function cairo.text_extents(cr, text)
+    local extents = ffi.new('cairo_text_extents_t')
     libcairo.cairo_text_extents(cr, text, extents)
 
     return extents
@@ -258,7 +279,7 @@ do -- Drawing
   cairo.text_cluster_free = libcairo.cairo_text_cluster_free
 
   --
-  -- Raster Sources
+  -- Растровые источники
   --
   cairo.pattern_create_raster_source = libcairo.cairo_pattern_create_raster_source
   cairo.raster_source_pattern_set_callback_data = libcairo.cairo_raster_source_pattern_set_callback_data
@@ -273,17 +294,17 @@ do -- Drawing
   cairo.raster_source_pattern_get_finish = libcairo.cairo_raster_source_pattern_get_finish
 
   --
-  -- Tags and Links
+  -- Теги и ссылки
   --
-  cairo.tag_begin = libcairo. cairo_tag_begin
+  cairo.tag_begin = libcairo.cairo_tag_begin
   cairo.tag_end = libcairo.cairo_tag_end
 end
 
-do -- Fonts
+do -- Шрифты
   --
   -- cairo_font_face_t
   --
-  cairo.font_face_reference = libcairo. cairo_font_face_reference
+  cairo.font_face_reference = libcairo.cairo_font_face_reference
   cairo.font_face_destroy = libcairo.cairo_font_face_destroy
   cairo.font_face_status = libcairo.cairo_font_face_status
   cairo.font_face_get_type = libcairo.cairo_font_face_get_type
@@ -294,7 +315,7 @@ do -- Fonts
   --
   -- cairo_scaled_font_t
   --
-  cairo.scaled_font_create = libcairo. cairo_scaled_font_create
+  cairo.scaled_font_create = libcairo.cairo_scaled_font_create
   cairo.scaled_font_reference = libcairo.cairo_scaled_font_reference
   cairo.scaled_font_destroy = libcairo.cairo_scaled_font_destroy
   cairo.scaled_font_status = libcairo.cairo_scaled_font_status
@@ -315,7 +336,7 @@ do -- Fonts
   --
   -- cairo_font_options_t
   --
-  cairo.font_options_create = libcairo. cairo_font_options_create
+  cairo.font_options_create = libcairo.cairo_font_options_create
   cairo.font_options_copy = libcairo.cairo_font_options_copy
   cairo.font_options_destroy = libcairo.cairo_font_options_destroy
   cairo.font_options_status = libcairo.cairo_font_options_status
@@ -343,7 +364,7 @@ do -- Fonts
   end
 
   --
-  -- FreeType Fonts
+  -- Шрифты FreeType
   --
   -- cairo.ft_font_face_create_for_ft_face = libcairo.cairo_ft_font_face_create_for_ft_face
   -- cairo.ft_font_face_create_for_pattern = libcairo.cairo_ft_font_face_create_for_pattern
@@ -355,7 +376,7 @@ do -- Fonts
   -- cairo.ft_font_face_unset_synthesize = libcairo.cairo_ft_font_face_unset_synthesize
 
   --
-  -- Win32 GDI Fonts
+  -- Шрифты Win32 GDI
   --
   -- cairo.win32_font_face_create_for_logfontw = libcairo.cairo_win32_font_face_create_for_logfontw
   -- cairo.win32_font_face_create_for_hfont = libcairo.cairo_win32_font_face_create_for_hfont
@@ -367,7 +388,7 @@ do -- Fonts
   -- cairo.win32_scaled_font_get_device_to_logical = libcairo.cairo_win32_scaled_font_get_device_to_logical
 
   --
-  -- DWrite Fonts
+  -- Шрифты DWrite
   --
   -- cairo.dwrite_font_face_create_for_dwrite_fontface = libcairo.cairo_dwrite_font_face_create_for_dwrite_fontface
   -- cairo.dwrite_font_face_get_rendering_params = libcairo.cairo_dwrite_font_face_get_rendering_params
@@ -376,15 +397,15 @@ do -- Fonts
   -- cairo.dwrite_font_face_set_measuring_mode = libcairo.cairo_dwrite_font_face_set_measuring_mode
 
   --
-  -- Quartz (CGFont) Fonts
+  -- Шрифты Quartz (CGFont)
   --
   -- cairo.quartz_font_face_create_for_cgfont = libcairo.cairo_quartz_font_face_create_for_cgfont
   -- cairo.quartz_font_face_create_for_atsu_font_id = libcairo.cairo_quartz_font_face_create_for_atsu_font_id
 
   --
-  -- User Fonts
+  -- Пользовательские шрифты
   --
-  cairo.user_font_face_create = libcairo. cairo_user_font_face_create
+  cairo.user_font_face_create = libcairo.cairo_user_font_face_create
   cairo.user_font_face_set_init_func = libcairo.cairo_user_font_face_set_init_func
   cairo.user_font_face_get_init_func = libcairo.cairo_user_font_face_get_init_func
   cairo.user_font_face_set_render_glyph_func = libcairo.cairo_user_font_face_set_render_glyph_func
@@ -402,11 +423,11 @@ do -- Fonts
   end
 end
 
-do -- Surfaces
+do -- Поверхности
   --
   -- cairo_device_t
   --
-  cairo.device_reference = libcairo. cairo_device_reference
+  cairo.device_reference = libcairo.cairo_device_reference
   cairo.device_destroy = libcairo.cairo_device_destroy
   cairo.device_status = libcairo.cairo_device_status
   cairo.device_finish = libcairo.cairo_device_finish
@@ -428,7 +449,7 @@ do -- Surfaces
   --
   -- cairo_surface_t
   --
-  cairo.surface_create_similar = libcairo. cairo_surface_create_similar
+  cairo.surface_create_similar = libcairo.cairo_surface_create_similar
   cairo.surface_create_similar_image = libcairo.cairo_surface_create_similar_image
   cairo.surface_create_for_rectangle = libcairo.cairo_surface_create_for_rectangle
   cairo.surface_reference = libcairo.cairo_surface_reference
@@ -461,7 +482,7 @@ do -- Surfaces
   cairo.surface_unmap_image = libcairo.cairo_surface_unmap_image
 
   --
-  -- Image Surfaces
+  -- Image-поверхности
   --
   cairo.format_stride_for_width = libcairo.cairo_format_stride_for_width
   cairo.image_surface_create = libcairo.cairo_image_surface_create
@@ -473,7 +494,7 @@ do -- Surfaces
   cairo.image_surface_get_stride = libcairo.cairo_image_surface_get_stride
 
   --
-  -- PDF Surfaces
+  -- PDF-поверхности
   --
   cairo.pdf_surface_create = libcairo.cairo_pdf_surface_create
   cairo.pdf_surface_create_for_stream = libcairo.cairo_pdf_surface_create_for_stream
@@ -491,21 +512,32 @@ do -- Surfaces
   end
 
   --
-  -- PNG Support
+  -- Поддержка PNG
   --
   cairo.image_surface_create_from_png = libcairo.cairo_image_surface_create_from_png
   cairo.image_surface_create_from_png_stream = libcairo.cairo_image_surface_create_from_png_stream
   cairo.surface_write_to_png = libcairo.cairo_surface_write_to_png
-  cairo.surface_write_to_png_stream = function(surface, callbak)
-    local function write_func(_, data, length)
-      callbak(ffi.string(data, length))
-    end
 
-    libcairo.cairo_surface_write_to_png_stream(surface, ffi.cast("cairo_write_func_t", write_func), ffi.new("void*"))
+  --- Записать поверхность в PNG через колбек.
+  -- Колбек вызывается с очередным куском данных PNG (строкой).
+  -- @tparam cdata surface поверхность cairo
+  -- @tparam function callback приёмник данных
+  -- @treturn number статус cairo (0 - успех)
+  function cairo.surface_write_to_png_stream(surface, callback)
+    local writeFunc = ffi.cast('cairo_write_func_t', function(_, data, length)
+      callback(ffi.string(data, length))
+      return libcairo.CAIRO_STATUS_SUCCESS
+    end)
+
+    -- Колбеки FFI - ограниченный ресурс, освобождение обязательно
+    local status = libcairo.cairo_surface_write_to_png_stream(surface, writeFunc, nil)
+    writeFunc:free()
+
+    return tonumber(status)
   end
 
   --
-  -- PostScript Surfaces
+  -- PostScript-поверхности
   --
   cairo.ps_surface_create = libcairo.cairo_ps_surface_create
   cairo.ps_surface_create_for_stream = libcairo.cairo_ps_surface_create_for_stream
@@ -520,16 +552,16 @@ do -- Surfaces
   cairo.ps_surface_dsc_comment = libcairo.cairo_ps_surface_dsc_comment
 
   --
-  -- Recording Surfaces
+  -- Recording-поверхности
   --
-  cairo.recording_surface_create = libcairo. cairo_recording_surface_create
+  cairo.recording_surface_create = libcairo.cairo_recording_surface_create
   cairo.recording_surface_ink_extents = libcairo.cairo_recording_surface_ink_extents
   cairo.recording_surface_get_extents = libcairo.cairo_recording_surface_get_extents
 
   --
-  -- Win32 Surfaces
+  -- Win32-поверхности
   --
-  -- cairo.win32_surface_create = libcairo. cairo_win32_surface_create
+  -- cairo.win32_surface_create = libcairo.cairo_win32_surface_create
   -- cairo.win32_surface_create_with_dib = libcairo.cairo_win32_surface_create_with_dib
   -- cairo.win32_surface_create_with_ddb = libcairo.cairo_win32_surface_create_with_ddb
   -- cairo.win32_surface_create_with_format = libcairo.cairo_win32_surface_create_with_format
@@ -538,7 +570,7 @@ do -- Surfaces
   -- cairo.win32_surface_get_image = libcairo.cairo_win32_surface_get_image
 
   --
-  -- SVG Surfaces
+  -- SVG-поверхности
   --
   cairo.svg_surface_create = libcairo.cairo_svg_surface_create
   cairo.svg_surface_create_for_stream = libcairo.cairo_svg_surface_create_for_stream
@@ -549,7 +581,7 @@ do -- Surfaces
   cairo.svg_version_to_string = libcairo.cairo_svg_version_to_string
 
   --
-  -- Quartz Surfaces
+  -- Quartz-поверхности
   --
   -- cairo.quartz_surface_create = libcairo.cairo_quartz_surface_create
   -- cairo.quartz_surface_create_for_cg_context = libcairo.cairo_quartz_surface_create_for_cg_context
@@ -558,9 +590,9 @@ do -- Surfaces
   -- cairo.quartz_image_surface_get_image = libcairo.cairo_quartz_image_surface_get_image
 
   --
-  -- XCB Surfaces
+  -- XCB-поверхности
   --
-  -- cairo.xcb_surface_create = libcairo. cairo_xcb_surface_create
+  -- cairo.xcb_surface_create = libcairo.cairo_xcb_surface_create
   -- cairo.xcb_surface_create_for_bitmap = libcairo.cairo_xcb_surface_create_for_bitmap
   -- cairo.xcb_surface_create_with_xrender_format = libcairo.cairo_xcb_surface_create_with_xrender_format
   -- cairo.xcb_surface_set_size = libcairo.cairo_xcb_surface_set_size
@@ -572,7 +604,7 @@ do -- Surfaces
   -- cairo.xcb_device_debug_set_precision = libcairo.cairo_xcb_device_debug_set_precision
 
   --
-  -- XLib Surfaces
+  -- XLib-поверхности
   --
   -- cairo.xlib_surface_create = libcairo.cairo_xlib_surface_create
   -- cairo.xlib_surface_create_for_bitmap = libcairo.cairo_xlib_surface_create_for_bitmap
@@ -590,13 +622,13 @@ do -- Surfaces
   -- cairo.xlib_device_debug_set_precision = libcairo.cairo_xlib_device_debug_set_precision
 
   --
-  -- XLib-XRender Backend
+  -- Бэкенд XLib-XRender
   --
   -- cairo.xlib_surface_create_with_xrender_format = libcairo.cairo_xlib_surface_create_with_xrender_format
   -- cairo.xlib_surface_get_xrender_format = libcairo.cairo_xlib_surface_get_xrender_format
 
   --
-  -- Script Surfaces
+  -- Script-поверхности
   --
   -- cairo.script_create = libcairo.cairo_script_create
   -- cairo.script_create_for_stream = libcairo.cairo_script_create_for_stream
@@ -608,7 +640,7 @@ do -- Surfaces
   -- cairo.script_write_comment = libcairo.cairo_script_write_comment
 
   --
-  -- Surface Observer
+  -- Наблюдатель поверхности (surface observer)
   --
   cairo.surface_create_observer = libcairo.cairo_surface_create_observer
   cairo.surface_observer_add_fill_callback = libcairo.cairo_surface_observer_add_fill_callback
@@ -622,7 +654,7 @@ do -- Surfaces
   cairo.surface_observer_print = libcairo.cairo_surface_observer_print
 
   --
-  -- Tee surface
+  -- Tee-поверхность
   --
   cairo.tee_surface_create = libcairo.cairo_tee_surface_create
   cairo.tee_surface_add = libcairo.cairo_tee_surface_add
@@ -630,15 +662,22 @@ do -- Surfaces
   cairo.tee_surface_remove = libcairo.cairo_tee_surface_remove
 end
 
-do -- Utilities
+do -- Утилиты
   --
   -- cairo_matrix_t
   --
   cairo.matrix_init = libcairo.cairo_matrix_init
   cairo.matrix_init_identity = libcairo.cairo_matrix_init_identity
   cairo.matrix_init_translate = libcairo.cairo_matrix_init_translate
-  cairo.matrix_init_scale = function(scale_x, scale_y)
-    return libcairo.cairo_matrix_init_scale(ffi.new("cairo_matrix_t"), scale_x, scale_y)
+  --- Создать матрицу масштабирования.
+  -- @tparam number scaleX масштаб по x
+  -- @tparam number scaleY масштаб по y
+  -- @treturn cdata матрица cairo_matrix_t
+  function cairo.matrix_init_scale(scaleX, scaleY)
+    local matrix = ffi.new('cairo_matrix_t')
+    libcairo.cairo_matrix_init_scale(matrix, scaleX, scaleY)
+
+    return matrix
   end
   cairo.matrix_init_rotate = libcairo.cairo_matrix_init_rotate
   cairo.matrix_translate = libcairo.cairo_matrix_translate
@@ -650,9 +689,14 @@ do -- Utilities
   cairo.matrix_transform_point = libcairo.cairo_matrix_transform_point
 
   --
-  -- Error handling
+  -- Обработка ошибок
   --
-  cairo.status_to_string = libcairo.cairo_status_to_string
+  --- Получить текстовое описание статуса cairo.
+  -- @tparam number status код статуса
+  -- @treturn string описание
+  function cairo.status_to_string(status)
+    return ffi.string(libcairo.cairo_status_to_string(status))
+  end
   cairo.debug_reset_static_data = libcairo.cairo_debug_reset_static_data
 end
 
